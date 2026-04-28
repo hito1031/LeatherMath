@@ -2,26 +2,7 @@ from dataclasses import dataclass
 import math
 from typing import Literal
 
-@dataclass
-class Leather:
-    """
-    革の物理特性を保持するクラス
-    """
-    thickness: float  # 厚み (mm)
-    name: str = "Default Leather"
-    
-    # 柔軟性 (0.0: 非常に硬い 〜 1.0: 非常に柔らかい)
-    # これにより K-factor を簡易的に自動調整する
-    softness: float = 0.5
 
-    @property
-    def k_factor(self) -> float:
-        """
-        中立軸の係数。
-        柔らかいほど内側に潰れるため、中立軸は内側（0.5未満）に寄ると定義する。
-        """
-        # 実務的な近似値: 0.3 (柔らかい) 〜 0.5 (硬い) の範囲で変化
-        return 0.5 - (self.softness * 0.2)
 
 @dataclass
 class Material:

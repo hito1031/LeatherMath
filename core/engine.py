@@ -84,19 +84,18 @@ class PatternEngine:
                 delta_l = BendCalculator.get_outer_offset(inner_thickness, bp.leather.k_factor)
                 final_width += delta_l
 
-            # 2. 幾何学生成（確定した寸法からPolygonを作る）
-            # ※ 本来は parts/wallets.py の関数を呼ぶが、ここでは直接矩形を生成
-            p1 = Point(0, 0)
-            p2 = Point(final_width, 0)
-            p3 = Point(final_width, final_height)
-            p4 = Point(0, final_height)
+            # 2. 幾何学生成（パーツ自身に自分の形を計算させる）
             
-            # 角R（フィレット）を適用（例として全パーツに 3.0mm のRをつける）
-            vertices = []
-            vertices.extend(GeometryEngine.calculate_fillet(p4, p1, p2, 3.0))
-            vertices.extend(GeometryEngine.calculate_fillet(p1, p2, p3, 3.0))
-            vertices.extend(GeometryEngine.calculate_fillet(p2, p3, p4, 3.0))
-            vertices.extend(GeometryEngine.calculate_fillet(p3, p4, p1, 3.0))
+            # bp (Blueprint) が実際のパーツのインスタンスを持っていると仮定
+            part_instance = bp.part_instance 
+            
+            # 物理演算で計算された「最終的な寸法（曲げの伸びを含む）」をパーツに上書きする
+            # ※ここで無理やりポリゴンを引き伸ばすと角Rが歪むため、寸法自体を渡して再描画させます
+            part_instance.width = final_width
+            part_instance.height = final_height
+            
+            # base.py で定義した共通メソッドを呼び出し、グローバル座標の頂点リストを取得
+            vertices = part_instance.get_global_polygon()
             
             # コンパイル結果として保存
             compiled = CompiledPart(part_id=bp.part_id, vertices=vertices, stitch_lines=[])
