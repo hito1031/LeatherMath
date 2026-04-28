@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
-from .material import Leather
+from .material import Material
 
 @dataclass
 class AssemblyNode:
-    """3D UIから渡される、1つのパーツの積層情報"""
     part_id: str
-    leather: Leather
+    material: Material # 変更
     parent_id: Optional[str] = None
-    # 将来的な拡張: offset_x, offset_y (親パーツのどの位置に貼られているか)
 
 class StackConstraintManager:
     """
@@ -41,16 +39,16 @@ class StackConstraintManager:
         # 親を辿りながら厚みを足し合わせる（ルートノードに到達するまで）
         parent_id = current_node.parent_id
         while parent_id:
-            if parent_id not in self.nodes:
-                break  # 親が未登録の場合は安全にストップ
-            
             parent_node = self.nodes[parent_id]
-            # 親パーツの革の厚み + 接着剤/空気層のバッファ
-            total_thickness += (parent_node.leather.thickness + self.glue_allowance)
             
-            # さらにその親へ遡る
+            # 金具(hardware)などは曲げの内輪差計算から除外、あるいは特殊処理をする
+            if parent_node.material.material_type in ['leather', 'stiffener']:
+                total_thickness += (parent_node.material.thickness + self.glue_allowance)
+            elif parent_node.material.material_type == 'textile':
+                # 布はボンド層の厚み（glue_allowance）を少なめに見積もるなどの微調整
+                total_thickness += parent_node.material.thickness
+                
             parent_id = parent_node.parent_id
-
         return total_thickness
 
     def validate_stack(self) -> List[str]:

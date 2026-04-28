@@ -36,6 +36,24 @@ class Point:
 
     def to_tuple(self):
         return (self.x, self.y)
+    
+    def translate(self, dx: float, dy: float) -> 'Point':
+        """平行移動"""
+        return Point(self.x + dx, self.y + dy)
+
+    def rotate(self, angle_rad: float, origin: 'Point' = None) -> 'Point':
+        """指定した原点（デフォルトは0,0）を中心とした回転"""
+        if origin is None:
+            origin = Point(0, 0)
+            
+        # 原点への移動 -> 回転 -> 元の位置への移動
+        qx = self.x - origin.x
+        qy = self.y - origin.y
+        
+        rx = qx * math.cos(angle_rad) - qy * math.sin(angle_rad)
+        ry = qx * math.sin(angle_rad) + qy * math.cos(angle_rad)
+        
+        return Point(rx + origin.x, ry + origin.y)
 
 
 class GeometryEngine:

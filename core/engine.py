@@ -15,6 +15,9 @@ class PartBlueprint:
     leather: Leather
     parent_id: Optional[str] = None  # どのパーツの上に重なっているか
     fold_angle: float = 0.0   # このパーツが何度曲がるか（例: 財布なら180度）
+    anchor_x: float = 0.0
+    anchor_y: float = 0.0
+    rotation_deg: float = 0.0
 
 @dataclass
 class CompiledPart:

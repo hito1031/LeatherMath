@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+from typing import Literal
 
 @dataclass
 class Leather:
@@ -22,6 +23,25 @@ class Leather:
         # 実務的な近似値: 0.3 (柔らかい) 〜 0.5 (硬い) の範囲で変化
         return 0.5 - (self.softness * 0.2)
 
+@dataclass
+class Material:
+    """すべての素材の基底クラス"""
+    thickness: float
+    name: str
+    material_type: Literal['leather', 'textile', 'hardware', 'stiffener'] = 'leather'
+
+@dataclass
+class Leather(Material):
+    softness: float = 0.5
+    
+    @property
+    def k_factor(self) -> float:
+        return 0.5 - (self.softness * 0.2)
+
+@dataclass
+class Textile(Material):
+    """裏地などの布素材（曲げても内輪差計算に影響を与えにくい）"""
+    material_type: Literal['textile'] = 'textile'
 
 class BendCalculator:
     """
